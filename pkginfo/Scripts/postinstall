@@ -22,11 +22,22 @@ fi
 
 chmod 4755 '/Library/Application Support/org.pqrs/Karabiner-Elements/bin/karabiner_session_monitor'
 
-#
-# Set icon
-#
-
-'/Library/Application Support/org.pqrs/Karabiner-Elements/Karabiner-AppIconSwitcher.app/Contents/MacOS/Karabiner-AppIconSwitcher'
+# Local ad-hoc builds cannot reuse the official SMAppService parent identity.
+# The package owns this root LaunchDaemon; signed Xcode builds retain SMAppService.
+support='/Library/Application Support/org.pqrs/Karabiner-Elements'
+core_info="$support/Karabiner-Core-Service.app/Contents/Info.plist"
+local_build=$(/usr/libexec/PlistBuddy -c 'Print :KELocalBuild' "$core_info" 2>/dev/null || true)
+if [ -n "$local_build" ]; then
+    label='org.pqrs.service.daemon.Karabiner-Core-Service'
+    helper="$support/Karabiner-Elements Privileged Daemons v2.app/Contents/MacOS/Karabiner-Elements Privileged Daemons v2"
+    "$helper" unregister-legacy-core-daemon || exit 1
+    source_plist="$support/Karabiner-Elements Privileged Daemons v2.app/Contents/Library/LaunchDaemons/$label.plist"
+    target_plist="/Library/LaunchDaemons/$label.plist"
+    plutil -lint "$source_plist" || exit 1
+    install -o root -g wheel -m 644 "$source_plist" "$target_plist" || exit 1
+    launchctl bootout "system/$label" 2>/dev/null || true
+    launchctl bootstrap system "$target_plist" || exit 1
+fi
 
 #
 # Relaunch karabiner processes

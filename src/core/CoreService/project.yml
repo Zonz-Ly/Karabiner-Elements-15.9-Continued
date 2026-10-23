@@ -1,5 +1,9 @@
 name: Karabiner-Core-Service
 
+options:
+  xcodeVersion: "16.2"
+  minimumXcodeGenVersion: "2.42.0"
+
 targets:
   Karabiner-Core-Service:
     settings:
@@ -33,4 +37,4 @@ targets:
           - .gitignore
           - '*.orig.png'
           - '*.plist.in'
-      - path: ../../apps/share/Resources/app.icns
+      - path: ../../../files/icons/KarabinerElements.icns

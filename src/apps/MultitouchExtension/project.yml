@@ -1,12 +1,19 @@
 name: Karabiner-MultitouchExtension
 
+options:
+  xcodeVersion: "16.2"
+  minimumXcodeGenVersion: "2.42.0"
+
 packages:
   AsyncAlgorithms:
     url: https://github.com/apple/swift-async-algorithms
-    from: 1.1.1
+    exactVersion: 1.0.4
   SettingsAccess:
     url: https://github.com/orchetect/SettingsAccess
-    from: 2.1.0
+    exactVersion: 2.1.0
+  Collections:
+    url: https://github.com/apple/swift-collections
+    exactVersion: 1.1.4
 
 targets:
   Karabiner-MultitouchExtension:
@@ -44,6 +51,7 @@ targets:
         excludes:
           - .gitignore
           - '*.plist.in'
+      - path: ../../../files/icons/MultitouchExtension.icns
     dependencies:
       - framework: /System/Library/PrivateFrameworks/MultitouchSupport.framework
       - package: AsyncAlgorithms

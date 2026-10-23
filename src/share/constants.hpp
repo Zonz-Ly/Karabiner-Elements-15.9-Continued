@@ -108,11 +108,6 @@ public:
     return path;
   }
 
-  static const std::filesystem::path& get_system_app_icon_configuration_file_path(void) {
-    static auto path = get_system_configuration_directory() / "karabiner_app_icon.json";
-    return path;
-  }
-
   static const std::filesystem::path& get_system_core_configuration_file_path(void) {
     static auto path = get_system_configuration_directory() / "karabiner.json";
     return path;

@@ -257,19 +257,6 @@ public:
     });
   }
 
-  void async_set_app_icon(int number) const {
-    enqueue_to_dispatcher([this, number] {
-      nlohmann::json json{
-          {"operation_type", operation_type::set_app_icon},
-          {"number", number},
-      };
-
-      if (client_) {
-        client_->async_send(nlohmann::json::to_msgpack(json));
-      }
-    });
-  }
-
   /**
    * @brief Set variables
    *

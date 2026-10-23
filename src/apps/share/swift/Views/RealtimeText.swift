@@ -145,7 +145,7 @@ struct RealtimeTextWithProgress: View {
 
   init(
     stream: RealtimeTextStream,
-    font: NSFont,
+    font: NSFont
   ) {
     self.stream = stream
     self.font = font

@@ -435,3 +435,17 @@ launchctl print system/org.pqrs.service.daemon.Karabiner-Core-Service
 ```
 
 If the output includes a line like `pid = 658`, this indicates the process ID, and the daemon is running if such a line is present.
+
+
+## Preparing this fork for publication
+
+Use the existing source layout: icons in `files/icons`, app resources and project
+specifications under `src`, installer scripts under `pkginfo/Scripts`, and build
+tools under `scripts`. Generated binaries, PKG/DMG files, logs and build caches
+must remain outside the commit.
+
+Before committing, run `git diff --cached --check`, review the staged diff, and
+check `git submodule status`. The DriverKit and CPM submodule commits remain at
+the v15.9.0 revisions; small vendored header changes are tracked in the parent
+repository. Configure your own Git name/email and fork remote before committing
+or pushing. No author identity or fork URL is embedded in this checkout.

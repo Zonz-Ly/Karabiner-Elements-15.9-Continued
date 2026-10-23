@@ -105,7 +105,6 @@ void run_core_configuration_test(void) {
       expect(actual[1]->get_disable_built_in_keyboard_if_exists() == true);
     }
 
-    expect(configuration.get_global_configuration().get_check_for_updates_on_startup() == false);
     expect(configuration.get_global_configuration().get_show_in_menu_bar() == false);
     expect(configuration.get_global_configuration().get_show_profile_name_in_menu_bar() == false);
     expect(configuration.get_global_configuration().get_show_additional_menu_items() == false);
@@ -115,6 +114,7 @@ void run_core_configuration_test(void) {
     expect(configuration.get_global_configuration().get_reorder_same_timestamp_input_events_to_prioritize_modifiers() == false);
 
     expect(configuration.is_loaded() == true);
+    expect(configuration.get_source() == krbn::core_configuration::core_configuration::source::user_file);
 
     {
       std::ifstream input("json/to_json_example.json");
@@ -130,6 +130,7 @@ void run_core_configuration_test(void) {
                                                                  krbn::core_configuration::error_handling::strict);
       expect(configuration.get_selected_profile().get_name() == "Default profile");
       expect(configuration.is_loaded() == false);
+      expect(configuration.get_source() == krbn::core_configuration::core_configuration::source::default_configuration);
     }
   };
 
@@ -143,7 +144,6 @@ void run_core_configuration_test(void) {
       expect(configuration.is_loaded() == false);
       expect(configuration.get_parse_error_message() == "[json.exception.parse_error.101] parse error at line 7, column 1: syntax error while parsing object key - unexpected end of input; expected string literal");
 
-      expect(configuration.get_global_configuration().get_check_for_updates_on_startup() == true);
       expect(configuration.get_global_configuration().get_show_in_menu_bar() == true);
       expect(configuration.get_global_configuration().get_show_profile_name_in_menu_bar() == false);
       expect(configuration.get_global_configuration().get_show_additional_menu_items() == false);
@@ -207,7 +207,6 @@ void run_core_configuration_test(void) {
       };
       krbn::core_configuration::details::global_configuration global_configuration(json,
                                                                                    krbn::core_configuration::error_handling::strict);
-      global_configuration.set_check_for_updates_on_startup(false);
       global_configuration.set_show_in_menu_bar(false);
       global_configuration.set_show_profile_name_in_menu_bar(true);
       global_configuration.set_show_additional_menu_items(true);
@@ -216,7 +215,6 @@ void run_core_configuration_test(void) {
       global_configuration.set_filter_useless_events_from_specific_devices(false);
       global_configuration.set_reorder_same_timestamp_input_events_to_prioritize_modifiers(false);
       nlohmann::json expected({
-          {"check_for_updates_on_startup", false},
           {"dummy", {{"keep_me", true}}},
           {"show_in_menu_bar", false},
           {"show_profile_name_in_menu_bar", true},

@@ -1,9 +1,16 @@
 name: Karabiner-NotificationWindow
 
+options:
+  xcodeVersion: "16.2"
+  minimumXcodeGenVersion: "2.42.0"
+
 packages:
   AsyncAlgorithms:
     url: https://github.com/apple/swift-async-algorithms
-    from: 1.1.1
+    exactVersion: 1.0.4
+  Collections:
+    url: https://github.com/apple/swift-collections
+    exactVersion: 1.1.4
 
 targets:
   Karabiner-NotificationWindow:
@@ -41,7 +48,7 @@ targets:
         excludes:
           - .gitignore
           - '*.plist.in'
-      - path: ../share/Resources/app.icns
+      - path: ../../../files/icons/KarabinerElements.icns
     dependencies:
       - package: AsyncAlgorithms
       - sdk: libc++.tbd

@@ -17,7 +17,7 @@ struct KarabinerMultitouchExtensionApp: App {
 
   var body: some Scene {
     MenuBarExtra(
-      "Karabiner-MultitouchExtension", systemImage: "rectangle.and.hand.point.up.left.filled",
+      "Karabiner-MultitouchExtension", systemImage: "rectangle.and.hand.point.up.left.filled"
     ) {
       Text("Karabiner-MultitouchExtension \(version)")
 
@@ -124,12 +124,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
       }
   }
 
+  // Only the notification signal is needed. Void can cross into MainActor
+  // with Swift 6.0 even when the SDK's Notification type is not Sendable.
   private func observeSystemSleep() {
     sleepTask = Task { @MainActor in
       let notifications = NSWorkspace.shared.notificationCenter.notifications(
         named: NSWorkspace.willSleepNotification,
         object: nil
-      )
+      ).map { _ in () }
 
       for await _ in notifications {
         logger.info("NSWorkspace.willSleepNotification")
@@ -142,7 +144,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
       let notifications = NSWorkspace.shared.notificationCenter.notifications(
         named: NSWorkspace.didWakeNotification,
         object: nil
-      )
+      ).map { _ in () }
 
       for await _ in notifications {
         logger.info("NSWorkspace.didWakeNotification")
@@ -157,7 +159,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
       let notifications = NSWorkspace.shared.notificationCenter.notifications(
         named: NSWorkspace.screensDidSleepNotification,
         object: nil
-      )
+      ).map { _ in () }
 
       for await _ in notifications {
         logger.info("NSWorkspace.screensDidSleepNotification")
@@ -172,7 +174,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
       let notifications = NSWorkspace.shared.notificationCenter.notifications(
         named: NSWorkspace.screensDidWakeNotification,
         object: nil
-      )
+      ).map { _ in () }
 
       for await _ in notifications {
         logger.info("NSWorkspace.screensDidWakeNotification")

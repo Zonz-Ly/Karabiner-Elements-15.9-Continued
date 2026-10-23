@@ -122,10 +122,6 @@ public:
     core_service_client_->async_connect_multitouch_extension();
   }
 
-  void async_set_app_icon(int number) const {
-    core_service_client_->async_set_app_icon(number);
-  }
-
   void async_set_variable(const std::string& name, int value) const {
     auto json = nlohmann::json::object({
         {name, value},

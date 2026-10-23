@@ -53,8 +53,6 @@ bool libkrbn_services_agent_running(const char* _Nonnull service_name);
 bool libkrbn_services_core_daemons_running(void);
 bool libkrbn_services_core_agents_running(void);
 
-void libkrbn_updater_check_for_updates_stable_only(void);
-void libkrbn_updater_check_for_updates_with_beta_version(void);
 
 void libkrbn_launch_event_viewer(void);
 void libkrbn_launch_settings(void);
@@ -69,7 +67,6 @@ bool libkrbn_system_core_configuration_file_path_exists(void);
 
 bool libkrbn_system_preferences_virtual_hid_keyboard_modifier_mappings_exists(void);
 
-int librkbn_get_app_icon_number(void);
 
 // types
 
@@ -101,8 +98,6 @@ bool libkrbn_core_configuration_save(char* _Nonnull error_message_buffer,
 
 // global_configuration
 
-bool libkrbn_core_configuration_get_global_configuration_check_for_updates_on_startup(void);
-void libkrbn_core_configuration_set_global_configuration_check_for_updates_on_startup(bool value);
 bool libkrbn_core_configuration_get_global_configuration_show_in_menu_bar(void);
 void libkrbn_core_configuration_set_global_configuration_show_in_menu_bar(bool value);
 bool libkrbn_core_configuration_get_global_configuration_show_profile_name_in_menu_bar(void);
@@ -563,7 +558,6 @@ void libkrbn_unregister_core_service_client_system_variables_received_callback(l
 
 void libkrbn_core_service_client_async_connect_multitouch_extension(void);
 
-void libkrbn_core_service_client_async_set_app_icon(int number);
 void libkrbn_core_service_client_async_set_variable(const char* _Nonnull name,
                                                     int value);
 

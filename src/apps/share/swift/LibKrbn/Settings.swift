@@ -124,8 +124,6 @@ extension LibKrbn {
 
       updateProfiles()
 
-      checkForUpdatesOnStartup =
-        libkrbn_core_configuration_get_global_configuration_check_for_updates_on_startup()
       showIconInMenuBar = libkrbn_core_configuration_get_global_configuration_show_in_menu_bar()
       showProfileNameInMenuBar =
         libkrbn_core_configuration_get_global_configuration_show_profile_name_in_menu_bar()
@@ -430,7 +428,22 @@ extension LibKrbn {
         destinationIndex
       )
 
-      reflectComplexModificationsRuleChanges()
+      // Avoid reflectComplexModificationsRuleChanges here because rebuilding the array can reset List scroll state.
+      var rules = complexModificationsRules
+      if sourceIndex >= 0 && sourceIndex < rules.count {
+        let item = rules.remove(at: sourceIndex)
+        var destination = destinationIndex
+        if sourceIndex < destination {
+          destination -= 1
+        }
+        destination = max(0, min(destination, rules.count))
+        rules.insert(item, at: destination)
+
+        for (index, rule) in rules.enumerated() {
+          rule.index = index
+        }
+        complexModificationsRules = rules
+      }
 
       save()
     }
@@ -692,7 +705,22 @@ extension LibKrbn {
         destinationIndex
       )
 
-      reflectProfileChanges()
+      // Avoid reflectProfileChanges here because rebuilding the array can reset List scroll state.
+      var nextProfiles = profiles
+      if sourceIndex >= 0 && sourceIndex < nextProfiles.count {
+        let item = nextProfiles.remove(at: sourceIndex)
+        var destination = destinationIndex
+        if sourceIndex < destination {
+          destination -= 1
+        }
+        destination = max(0, min(destination, nextProfiles.count))
+        nextProfiles.insert(item, at: destination)
+
+        for index in nextProfiles.indices {
+          nextProfiles[index].index = index
+        }
+        profiles = nextProfiles
+      }
 
       save()
     }
@@ -708,17 +736,6 @@ extension LibKrbn {
     //
     // Misc
     //
-
-    @Published var checkForUpdatesOnStartup: Bool = false {
-      didSet {
-        if didSetEnabled {
-          libkrbn_core_configuration_set_global_configuration_check_for_updates_on_startup(
-            checkForUpdatesOnStartup
-          )
-          save()
-        }
-      }
-    }
 
     @Published var showIconInMenuBar: Bool = false {
       didSet {

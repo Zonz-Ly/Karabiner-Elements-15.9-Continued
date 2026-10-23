@@ -1,5 +1,9 @@
 name: Karabiner-Elements Privileged Daemons v2
 
+options:
+  xcodeVersion: "16.2"
+  minimumXcodeGenVersion: "2.42.0"
+
 targets:
   Karabiner-Elements Privileged Daemons v2:
     settings:
@@ -29,7 +33,7 @@ targets:
       - path: Resources
         excludes:
           - Info.plist.in
-      - path: ../share/Resources/app.icns
+      - path: ../../../files/icons/KarabinerElements.icns
       - path: ../share/swift/ServiceManagementHelper.swift
       - path: ../../../vendor/vendor/src/pqrs/osx/process_info
       - path: ../../../vendor/vendor/src/pqrs/osx/workspace

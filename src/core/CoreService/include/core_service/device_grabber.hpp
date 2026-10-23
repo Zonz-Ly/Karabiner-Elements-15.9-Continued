@@ -463,6 +463,8 @@ public:
       configuration_monitor_->core_configuration_updated.connect([this](auto&& weak_core_configuration) {
         if (auto core_configuration = weak_core_configuration.lock()) {
           core_configuration_ = core_configuration;
+          post_event_to_virtual_devices_manipulator_->set_sleep_shortcut_delay(
+              std::chrono::milliseconds(core_configuration_->get_global_configuration().get_delay_milliseconds_before_sleep_shortcut()));
 
           for (auto&& e : entries_) {
             e.second->set_core_configuration(core_configuration);
@@ -473,14 +475,6 @@ public:
           logger_unique_filter_.reset();
 
           if (auto c = weak_console_user_server_client_.lock()) {
-            //
-            // Check for updates
-            //
-
-            if (core_configuration_->get_global_configuration().get_check_for_updates_on_startup()) {
-              c->async_check_for_updates_on_startup();
-            }
-
             //
             // Manage agents
             //
@@ -508,7 +502,10 @@ public:
             // Open Settings if needed
             //
 
-            if (core_configuration_->get_selected_profile().get_virtual_hid_keyboard()->get_keyboard_type_v2() == "") {
+            // A legacy system-wide configuration is replaced by the user
+            // configuration at login; do not open Settings for that temporary state.
+            if (core_configuration_->get_source() != core_configuration::core_configuration::source::system_file &&
+                core_configuration_->get_selected_profile().get_virtual_hid_keyboard()->get_keyboard_type_v2().empty()) {
               software_function_details::open_application a;
               a.set_file_path("/Applications/Karabiner-Elements.app");
 

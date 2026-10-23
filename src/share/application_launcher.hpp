@@ -11,13 +11,6 @@
 namespace krbn {
 class application_launcher final {
 public:
-  static void launch_app_icon_switcher(void) {
-    // Note:
-    // Updating the icon may trigger Spotlight index updates, so only call it when necessary.
-    // (Avoid calling it every time, such as during core_service startup.)
-    system("'/Library/Application Support/org.pqrs/Karabiner-Elements/Karabiner-AppIconSwitcher.app/Contents/MacOS/Karabiner-AppIconSwitcher'");
-  }
-
   static void launch_event_viewer(void) {
     pqrs::osx::workspace::open_application_by_file_path("/Applications/Karabiner-EventViewer.app");
   }

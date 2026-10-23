@@ -1,5 +1,4 @@
 #include "libkrbn/libkrbn.h"
-#include "app_icon.hpp"
 #include "application_launcher.hpp"
 #include "constants.hpp"
 #include "core_configuration/core_configuration.hpp"
@@ -11,7 +10,6 @@
 #include "run_loop_thread_utility.hpp"
 #include "services_utility.hpp"
 #include "types.hpp"
-#include "update_utility.hpp"
 #include <fstream>
 #include <iostream>
 #include <nlohmann/json.hpp>
@@ -43,7 +41,8 @@ void libkrbn_initialize(void) {
   }
 
   if (!scoped_run_loop_thread_manager_) {
-    scoped_run_loop_thread_manager_ = krbn::run_loop_thread_utility::initialize_shared_run_loop_thread();
+    scoped_run_loop_thread_manager_ = krbn::run_loop_thread_utility::initialize_shared_run_loop_thread(
+        pqrs::cf::run_loop_thread::failure_policy::exit);
   }
 
   if (!libkrbn_components_manager_) {
@@ -168,14 +167,6 @@ bool libkrbn_services_core_agents_running(void) {
   return krbn::services_utility::core_agents_running();
 }
 
-void libkrbn_updater_check_for_updates_stable_only(void) {
-  krbn::update_utility::check_for_updates_stable_only();
-}
-
-void libkrbn_updater_check_for_updates_with_beta_version(void) {
-  krbn::update_utility::check_for_updates_with_beta_version();
-}
-
 void libkrbn_launch_event_viewer(void) {
   krbn::application_launcher::launch_event_viewer();
 }
@@ -233,11 +224,6 @@ bool libkrbn_system_preferences_virtual_hid_keyboard_modifier_mappings_exists(vo
   }
 
   return false;
-}
-
-int librkbn_get_app_icon_number(void) {
-  auto icon = krbn::app_icon(krbn::constants::get_system_app_icon_configuration_file_path());
-  return icon.get_number();
 }
 
 bool libkrbn_is_momentary_switch_event_target(int32_t usage_page,
@@ -881,14 +867,6 @@ void libkrbn_core_service_client_async_connect_multitouch_extension(void) {
   if (auto manager = libkrbn_components_manager_) {
     if (auto c = manager->get_libkrbn_core_service_client()) {
       c->async_connect_multitouch_extension();
-    }
-  }
-}
-
-void libkrbn_core_service_client_async_set_app_icon(int number) {
-  if (auto manager = libkrbn_components_manager_) {
-    if (auto c = manager->get_libkrbn_core_service_client()) {
-      c->async_set_app_icon(number);
     }
   }
 }

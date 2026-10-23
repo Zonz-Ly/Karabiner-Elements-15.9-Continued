@@ -19,7 +19,7 @@ struct SettingsPowerView: View {
           }
 
           Text(
-            "(This setting consumes battery power and may prevent the system from sleeping)",
+            "(This setting consumes battery power and may prevent the system from sleeping)"
           )
         }
         .frame(maxWidth: .infinity, alignment: .leading)

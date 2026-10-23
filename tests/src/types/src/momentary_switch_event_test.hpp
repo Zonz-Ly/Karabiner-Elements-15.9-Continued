@@ -7,6 +7,15 @@ void run_momentary_switch_event_test(void) {
   using namespace boost::ut::literals;
   using namespace std::literals;
 
+  "consumer zoom HID usages"_test = [] {
+    const krbn::momentary_switch_event zoom_in(pqrs::hid::usage_page::consumer, pqrs::hid::usage::value_t(0x22d));
+    const krbn::momentary_switch_event zoom_out(pqrs::hid::usage_page::consumer, pqrs::hid::usage::value_t(0x22e));
+    expect(nlohmann::json(zoom_in) == nlohmann::json({{"consumer_key_code", "ac_zoom_in"}}));
+    expect(nlohmann::json(zoom_out) == nlohmann::json({{"consumer_key_code", "ac_zoom_out"}}));
+    expect(nlohmann::json({{"consumer_key_code", "ac_zoom_in"}}).get<krbn::momentary_switch_event>() == zoom_in);
+    expect(nlohmann::json({{"consumer_key_code", "ac_zoom_out"}}).get<krbn::momentary_switch_event>() == zoom_out);
+  };
+
   "momentary_switch_event"_test = [] {
     //
     // usage_page::keyboard_or_keypad

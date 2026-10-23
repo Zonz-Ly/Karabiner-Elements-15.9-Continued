@@ -1,3 +1,4 @@
+import AppKit
 import SwiftUI
 
 enum ComplexModificationsSheetView: String {
@@ -71,7 +72,11 @@ struct ComplexModificationsView: View {
                 .frame(width: 16.0, height: 16.0)
                 .padding(.trailing, 6.0)
                 .onHover { hovering in
-                  moveDisabled = !hovering
+                  if hovering {
+                    moveDisabled = false
+                  } else if NSEvent.pressedMouseButtons == 0 {
+                    moveDisabled = true
+                  }
                 }
                 .contextMenu {
                   Section(header: Text("Position")) {
@@ -166,7 +171,6 @@ struct ComplexModificationsView: View {
       }
       .background(Color(NSColor.textBackgroundColor))
     }
-    .padding(.leading, 2)  // Prevent the header underline from disappearing in NavigationSplitView.
     .sheet(isPresented: $contentViewStates.complexModificationsViewSheetPresented) {
       if let sheetView = contentViewStates.complexModificationsViewSheetView {
         switch sheetView {

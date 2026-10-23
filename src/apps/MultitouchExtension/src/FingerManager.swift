@@ -211,7 +211,7 @@ class FingerManager: ObservableObject {
 
     let s = FingerState(
       mtDeviceRegistryEntryID: mtDeviceRegistryEntryID,
-      identifier: identifier,
+      identifier: identifier
     )
     rawStates.append(s)
     return s

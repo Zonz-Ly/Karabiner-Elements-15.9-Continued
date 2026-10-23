@@ -5,6 +5,14 @@
 
 Karabiner-Elements is a powerful key remapper for macOS.
 
+This fork is based on v15.9.0, releases as **15.9.1**, and retains the original IOHID keyboard capture implementation.
+It includes compatible bug backports, release-triggered Escape on the lock screen,
+custom bundled icons, and an AppKit sidebar with the existing appearance.
+The upstream updater and its menu/settings entries have been removed.
+See [backports and behavior](BACKPORTS.zh-TW.md), [CLT builds](BUILDING-CLT.zh-TW.md),
+[Sonoma/Xcode builds](BUILDING-SONOMA.zh-TW.md), and [verification](VERIFICATION.zh-TW.md).
+The upstream download links below provide official builds, not this fork.
+
 ## Download
 
 You can download Karabiner-Elements from the [official site](https://karabiner-elements.pqrs.org/).
@@ -40,14 +48,23 @@ If you would like to contribute financially to the development of Karabiner-Elem
 
 ### How to build
 
-System requirements to build Karabiner-Elements:
+System requirements for the original Xcode build:
 
-- macOS 15+
-- Xcode 26+
+- macOS 14.5+ (including macOS 14.8.7)
+- Full Xcode 16.2 (Swift 6.0, macOS 15.2 SDK), selected with `xcode-select`
 - Command Line Tools for Xcode (`xcode-select --install`)
 - xz (`brew install xz`)
 - [XcodeGen](https://github.com/yonaskolb/XcodeGen) (`brew install xcodegen`)
 - CMake (`brew install cmake`)
+
+The runtime deployment target remains macOS 13.0. For a local build using only
+Command Line Tools and the unchanged resources from installed 15.9.0 apps, use
+`make package-clt`; see [BUILDING-CLT.zh-TW.md](BUILDING-CLT.zh-TW.md).
+This branch pins Swift package versions for the Xcode 16.2 toolchain; keep those
+pins when regenerating projects. See [BUILDING-SONOMA.zh-TW.md](BUILDING-SONOMA.zh-TW.md)
+for setup and verification details.
+
+Run `make check-build-environment` before building.
 
 #### Steps
 

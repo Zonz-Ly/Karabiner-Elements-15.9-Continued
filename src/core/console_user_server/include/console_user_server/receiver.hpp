@@ -9,7 +9,6 @@
 #include "shell_command_handler.hpp"
 #include "software_function_handler.hpp"
 #include "types.hpp"
-#include "update_utility.hpp"
 #include <pqrs/dispatcher.hpp>
 #include <pqrs/local_datagram.hpp>
 #include <pqrs/osx/input_source_selector.hpp>
@@ -108,7 +107,6 @@ public:
             }
             break;
 
-          case operation_type::check_for_updates_on_startup:
           case operation_type::register_menu_agent:
           case operation_type::unregister_menu_agent:
           case operation_type::register_multitouch_extension_agent:
@@ -122,33 +120,6 @@ public:
               if (verified_peer_manager_->verify_shared_secret(sender_endpoint->path(),
                                                                json.at("shared_secret").get<std::vector<uint8_t>>())) {
                 switch (ot) {
-                  case operation_type::check_for_updates_on_startup: {
-                    static bool checked = false;
-                    if (!checked) {
-                      checked = true;
-
-                      logger::get_logger()->info("operation_type::check_for_updates_on_startup was received; waiting 30 seconds before checking for updates.");
-
-                      // Note:
-                      //
-                      // During the updates, Karabiner-Updater.app and console_user_server binaries are overwritten asynchronous.
-                      // And console_user_server will be restarted via version check.
-                      // If console_user_server is restarted before Karabiner-Updater.app overwritten,
-                      // checking for updates runs with the old version of Karabiner-Updater.app,
-                      // and the update dialog is shown again even though the update was just completed.
-                      //
-                      // Wait before checking for updates to avoid it.
-                      enqueue_to_dispatcher(
-                          [] {
-                            logger::get_logger()->info("Check for updates...");
-                            update_utility::check_for_updates_in_background();
-                          },
-                          when_now() + std::chrono::seconds(30));
-                    }
-
-                    break;
-                  }
-
                   case operation_type::register_menu_agent:
                     services_utility::register_menu_agent();
                     break;

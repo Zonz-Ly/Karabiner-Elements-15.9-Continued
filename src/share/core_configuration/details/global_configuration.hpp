@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../configuration_json_helper.hpp"
+#include <algorithm>
 #include <pqrs/json.hpp>
 
 namespace krbn {
@@ -13,10 +14,6 @@ public:
   global_configuration(const nlohmann::json& json,
                        error_handling error_handling)
       : json_(json) {
-    helper_values_.push_back_value<bool>("check_for_updates_on_startup",
-                                         check_for_updates_on_startup_,
-                                         true);
-
     helper_values_.push_back_value<bool>("show_in_menu_bar",
                                          show_in_menu_bar_,
                                          true);
@@ -49,9 +46,14 @@ public:
                                          reorder_same_timestamp_input_events_to_prioritize_modifiers_,
                                          true);
 
+    helper_values_.push_back_value<int>("delay_milliseconds_before_sleep_shortcut",
+                                        delay_milliseconds_before_sleep_shortcut_,
+                                        500);
+
     pqrs::json::requires_object(json, "json");
 
     helper_values_.update_value(json, error_handling);
+    set_delay_milliseconds_before_sleep_shortcut(delay_milliseconds_before_sleep_shortcut_);
   }
 
   nlohmann::json to_json(void) const {
@@ -60,13 +62,6 @@ public:
     helper_values_.update_json(j);
 
     return j;
-  }
-
-  const bool& get_check_for_updates_on_startup(void) const {
-    return check_for_updates_on_startup_;
-  }
-  void set_check_for_updates_on_startup(bool value) {
-    check_for_updates_on_startup_ = value;
   }
 
   const bool& get_show_in_menu_bar(void) const {
@@ -125,9 +120,15 @@ public:
     reorder_same_timestamp_input_events_to_prioritize_modifiers_ = value;
   }
 
+  const int& get_delay_milliseconds_before_sleep_shortcut(void) const {
+    return delay_milliseconds_before_sleep_shortcut_;
+  }
+  void set_delay_milliseconds_before_sleep_shortcut(int value) {
+    delay_milliseconds_before_sleep_shortcut_ = std::clamp(value, 0, 10000);
+  }
+
 private:
   nlohmann::json json_;
-  bool check_for_updates_on_startup_;
   bool show_in_menu_bar_;
   bool show_profile_name_in_menu_bar_;
   bool show_additional_menu_items_;
@@ -136,6 +137,7 @@ private:
   bool unsafe_ui_;
   bool filter_useless_events_from_specific_devices_;
   bool reorder_same_timestamp_input_events_to_prioritize_modifiers_;
+  int delay_milliseconds_before_sleep_shortcut_;
   configuration_json_helper::helper_values helper_values_;
 };
 

@@ -1,5 +1,9 @@
 name: karabiner_console_user_server
 
+options:
+  xcodeVersion: "16.2"
+  minimumXcodeGenVersion: "2.42.0"
+
 targets:
   karabiner_console_user_server:
     settings:

@@ -1,5 +1,9 @@
 name: krbn
 
+options:
+  xcodeVersion: "16.2"
+  minimumXcodeGenVersion: "2.42.0"
+
 targets:
   krbn:
     settings:

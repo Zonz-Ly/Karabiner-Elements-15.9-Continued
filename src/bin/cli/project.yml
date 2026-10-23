@@ -1,5 +1,9 @@
 name: karabiner_cli
 
+options:
+  xcodeVersion: "16.2"
+  minimumXcodeGenVersion: "2.42.0"
+
 targets:
   karabiner_cli:
     settings:

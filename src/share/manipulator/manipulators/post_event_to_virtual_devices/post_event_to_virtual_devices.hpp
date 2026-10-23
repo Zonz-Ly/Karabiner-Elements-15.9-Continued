@@ -141,14 +141,34 @@ public:
 
               } else if (!front_input_event_modifier_key_event) {
                 switch (front_input_event.get_event_type()) {
-                  case event_type::key_down:
+                  case event_type::key_down: {
+                    if (is_loginwindow_escape(*e, *output_event_queue)) {
+                      // Hold Escape until physical release, including long holds.
+                      pending_loginwindow_escape_devices_.insert(front_input_event.get_device_id());
+                      break;
+                    }
+                    const auto time_stamp = make_time_stamp_with_sleep_shortcut_delay_if_needed(
+                        *e,
+                        *output_event_queue,
+                        front_input_event.get_event_time_stamp().get_time_stamp());
                     key_event_dispatcher_.dispatch_key_down_event(front_input_event.get_device_id(),
                                                                   e->get_usage_pair(),
                                                                   queue_,
-                                                                  front_input_event.get_event_time_stamp().get_time_stamp());
-                    break;
+                                                                  time_stamp);
+                  } break;
 
                   case event_type::key_up:
+                    if (e->get_usage_pair() == pqrs::hid::usage_pair(
+                            pqrs::hid::usage_page::keyboard_or_keypad,
+                            pqrs::hid::usage::keyboard_or_keypad::keyboard_escape) &&
+                        pending_loginwindow_escape_devices_.erase(front_input_event.get_device_id())) {
+                      // Cancel if the user left loginwindow while holding Escape.
+                      if (is_loginwindow_escape(*e, *output_event_queue)) {
+                        key_event_dispatcher_.dispatch_key_down_event(
+                            front_input_event.get_device_id(), e->get_usage_pair(), queue_,
+                            front_input_event.get_event_time_stamp().get_time_stamp());
+                      }
+                    }
                     key_event_dispatcher_.dispatch_key_up_event(e->get_usage_pair(),
                                                                 queue_,
                                                                 front_input_event.get_event_time_stamp().get_time_stamp());
@@ -268,6 +288,8 @@ public:
 
   virtual void handle_device_keys_and_pointing_buttons_are_released_event(const event_queue::entry& front_input_event,
                                                                           event_queue::queue& output_event_queue) {
+    pending_loginwindow_escape_devices_.erase(front_input_event.get_device_id());
+
     // modifier flags
 
     key_event_dispatcher_.dispatch_modifier_key_event(output_event_queue.get_modifier_flag_manager(),
@@ -319,6 +341,8 @@ public:
   virtual void handle_device_ungrabbed_event(device_id device_id,
                                              const event_queue::queue& output_event_queue,
                                              absolute_time_point time_stamp) {
+    pending_loginwindow_escape_devices_.erase(device_id);
+
     // Release pressed keys
 
     key_event_dispatcher_.dispatch_key_up_events_by_device_id(device_id,
@@ -389,6 +413,10 @@ public:
     // This manipulator is always valid.
   }
 
+  void set_sleep_shortcut_delay(std::chrono::milliseconds value) {
+    sleep_shortcut_delay_ = value;
+  }
+
   void async_post_events(std::weak_ptr<pqrs::karabiner::driverkit::virtual_hid_device_service::client> weak_virtual_hid_device_service_client) {
     enqueue_to_dispatcher(
         [this, weak_virtual_hid_device_service_client] {
@@ -410,6 +438,57 @@ public:
   }
 
 private:
+  static bool is_loginwindow_escape(const momentary_switch_event& event,
+                                    const event_queue::queue& output_event_queue) {
+    const auto& identifier = output_event_queue.get_manipulator_environment()
+                                 .get_frontmost_application().get_bundle_identifier();
+    return event.get_usage_pair() == pqrs::hid::usage_pair(
+               pqrs::hid::usage_page::keyboard_or_keypad,
+               pqrs::hid::usage::keyboard_or_keypad::keyboard_escape) &&
+           identifier && *identifier == "com.apple.loginwindow";
+  }
+
+  [[nodiscard]] absolute_time_point make_time_stamp_with_sleep_shortcut_delay_if_needed(
+      const momentary_switch_event& event,
+      const event_queue::queue& output_event_queue,
+      absolute_time_point time_stamp) const {
+    const auto usage_pair = event.get_usage_pair();
+    const auto usage_page = usage_pair.get_usage_page();
+    const auto usage = usage_pair.get_usage();
+
+    //
+    // command+option+power or command+option+eject
+    //
+
+    const auto power_or_eject =
+        (usage_page == pqrs::hid::usage_page::keyboard_or_keypad &&
+         usage == pqrs::hid::usage::keyboard_or_keypad::keyboard_power) ||
+        (usage_page == pqrs::hid::usage_page::consumer &&
+         (usage == pqrs::hid::usage::consumer::power ||
+          usage == pqrs::hid::usage::consumer::eject));
+
+    if (power_or_eject) {
+      const auto& modifier_flag_manager = output_event_queue.get_modifier_flag_manager();
+      const auto option_pressed =
+          modifier_flag_manager.is_pressed(modifier_flag::left_option) ||
+          modifier_flag_manager.is_pressed(modifier_flag::right_option);
+      const auto command_pressed =
+          modifier_flag_manager.is_pressed(modifier_flag::left_command) ||
+          modifier_flag_manager.is_pressed(modifier_flag::right_command);
+
+      if (option_pressed && command_pressed) {
+        return make_time_stamp_with_sleep_shortcut_delay(time_stamp);
+      }
+    }
+
+    return time_stamp;
+  }
+
+  [[nodiscard]] absolute_time_point make_time_stamp_with_sleep_shortcut_delay(absolute_time_point time_stamp) const {
+    return time_stamp +
+           pqrs::osx::chrono::make_absolute_time_duration(sleep_shortcut_delay_);
+  }
+
   void post_pointing_input_report(event_queue::entry& front_input_event,
                                   std::shared_ptr<event_queue::queue> output_event_queue) {
     pqrs::karabiner::driverkit::virtual_hid_device_driver::hid_report::pointing_input report;
@@ -445,6 +524,8 @@ private:
   std::weak_ptr<notification_message_manager> weak_notification_message_manager_;
 
   queue queue_;
+  std::unordered_set<device_id> pending_loginwindow_escape_devices_;
+  std::chrono::milliseconds sleep_shortcut_delay_{500};
   key_event_dispatcher key_event_dispatcher_;
   std::unique_ptr<mouse_key_handler> mouse_key_handler_;
   std::unordered_set<modifier_flag> pressed_modifier_flags_;

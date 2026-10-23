@@ -30,6 +30,12 @@ using namespace std::string_literals;
 
 class core_configuration final {
 public:
+  enum class source {
+    default_configuration,
+    user_file,
+    system_file,
+  };
+
   core_configuration(const core_configuration&) = delete;
 
   core_configuration(void)
@@ -44,6 +50,7 @@ public:
       : json_(nlohmann::json::object()),
         error_handling_(error_handling),
         loaded_(false),
+        source_(source::default_configuration),
         global_configuration_(std::make_shared<details::global_configuration>(nlohmann::json::object(),
                                                                               error_handling)),
         machine_specific_(std::make_shared<details::machine_specific>(nlohmann::json::object(),
@@ -82,6 +89,9 @@ public:
                                         error_handling);
 
             loaded_ = true;
+            source_ = file_path == constants::get_system_core_configuration_file_path().string()
+                          ? source::system_file
+                          : source::user_file;
 
           } catch (std::exception& e) {
             logger::get_logger()->error("parse error in {0}: {1}", file_path, e.what());
@@ -112,6 +122,10 @@ public:
   }
 
   bool is_loaded(void) const { return loaded_; }
+
+  source get_source(void) const {
+    return source_;
+  }
 
   const std::string& get_parse_error_message(void) const {
     return parse_error_message_;
@@ -207,6 +221,8 @@ public:
 
     auto file_path = constants::get_user_core_configuration_file_path();
     json_writer::sync_save_to_file(to_json(), file_path, 0700, 0600);
+    loaded_ = true;
+    source_ = source::user_file;
   }
 
 private:
@@ -267,6 +283,7 @@ private:
   nlohmann::json json_;
   error_handling error_handling_;
   bool loaded_;
+  source source_;
   std::string parse_error_message_;
 
   pqrs::not_null_shared_ptr_t<details::global_configuration> global_configuration_;

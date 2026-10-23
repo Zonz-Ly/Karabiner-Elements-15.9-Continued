@@ -102,6 +102,31 @@ void run_manipulator_conditions_test(void) {
     }
   };
 
+  "expression variables are reset after unset"_test = [] {
+    krbn::manipulator::manipulator_environment environment;
+    auto numeric = krbn::exprtk_utility::compile("flag");
+    auto string = krbn::exprtk_utility::compile("value_string == 'hello'");
+    environment.set_variable("flag", krbn::manipulator_environment_variable_value(42));
+    environment.set_variable("value_string", krbn::manipulator_environment_variable_value("hello"));
+    environment.apply_to_expression_variable(numeric);
+    environment.apply_to_expression_variable(string);
+    expect(numeric->value<int64_t>() == 42_i64);
+    expect(string->value<int64_t>() == 1_i64);
+    environment.unset_variable("flag");
+    environment.unset_variable("value_string");
+    environment.apply_to_expression_variable(numeric);
+    environment.apply_to_expression_variable(string);
+    expect(numeric->value<int64_t>() == 0_i64);
+    expect(string->value<int64_t>() == 0_i64);
+    environment.set_variable("flag", krbn::manipulator_environment_variable_value(7));
+    environment.apply_to_expression_variable(numeric);
+    expect(numeric->value<int64_t>() == 7_i64);
+    // Newly compiled expressions must see the cleared values as well.
+    auto fresh = krbn::exprtk_utility::compile("flag + (value_string == 'hello')");
+    environment.apply_to_expression_variable(fresh);
+    expect(fresh->value<int64_t>() == 7_i64);
+  };
+
   "conditions.expression"_test = [] {
     krbn::manipulator::manipulator_environment manipulator_environment;
     krbn::event_queue::entry entry(krbn::device_id(1),

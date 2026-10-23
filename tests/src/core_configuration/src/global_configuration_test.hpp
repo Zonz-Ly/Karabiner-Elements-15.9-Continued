@@ -5,13 +5,27 @@ void run_global_configuration_test(void) {
   using namespace boost::ut;
   using namespace boost::ut::literals;
 
+  "sleep shortcut delay configuration"_test = [] {
+    using configuration = krbn::core_configuration::details::global_configuration;
+    const auto handling = krbn::core_configuration::error_handling::strict;
+    configuration defaults(nlohmann::json::object(), handling);
+    expect(defaults.get_delay_milliseconds_before_sleep_shortcut() == 500_i);
+    expect(!defaults.to_json().contains("delay_milliseconds_before_sleep_shortcut"));
+    for (const auto& [input, expected] : std::vector<std::pair<int, int>>{{-1, 0}, {0, 0}, {750, 750}, {20000, 10000}}) {
+      configuration c({{"delay_milliseconds_before_sleep_shortcut", input}}, handling);
+      expect(c.get_delay_milliseconds_before_sleep_shortcut() == expected);
+      expect(c.to_json().at("delay_milliseconds_before_sleep_shortcut") == expected);
+      defaults.set_delay_milliseconds_before_sleep_shortcut(input);
+      expect(defaults.get_delay_milliseconds_before_sleep_shortcut() == expected);
+    }
+  };
+
   "global_configuration"_test = [] {
     // empty json
     {
       auto json = nlohmann::json::object();
       krbn::core_configuration::details::global_configuration global_configuration(json,
                                                                                    krbn::core_configuration::error_handling::strict);
-      expect(global_configuration.get_check_for_updates_on_startup() == true);
       expect(global_configuration.get_show_in_menu_bar() == true);
       expect(global_configuration.get_show_profile_name_in_menu_bar() == false);
       expect(global_configuration.get_show_additional_menu_items() == false);
@@ -25,7 +39,6 @@ void run_global_configuration_test(void) {
     // load values from json
     {
       nlohmann::json json{
-          {"check_for_updates_on_startup", false},
           {"show_in_menu_bar", false},
           {"show_profile_name_in_menu_bar", true},
           {"show_additional_menu_items", true},
@@ -37,7 +50,6 @@ void run_global_configuration_test(void) {
       };
       krbn::core_configuration::details::global_configuration global_configuration(json,
                                                                                    krbn::core_configuration::error_handling::strict);
-      expect(global_configuration.get_check_for_updates_on_startup() == false);
       expect(global_configuration.get_show_in_menu_bar() == false);
       expect(global_configuration.get_show_profile_name_in_menu_bar() == true);
       expect(global_configuration.get_show_additional_menu_items() == true);
@@ -51,7 +63,6 @@ void run_global_configuration_test(void) {
       // Set default values
       //
 
-      global_configuration.set_check_for_updates_on_startup(true);
       global_configuration.set_show_in_menu_bar(true);
       global_configuration.set_show_profile_name_in_menu_bar(false);
       global_configuration.set_show_additional_menu_items(false);
@@ -67,7 +78,6 @@ void run_global_configuration_test(void) {
     // invalid values in json
     {
       nlohmann::json json{
-          {"check_for_updates_on_startup", nlohmann::json::array()},
           {"show_in_menu_bar", 0},
           {"show_profile_name_in_menu_bar", nlohmann::json::object()},
           {"show_additional_menu_items", nlohmann::json::object()},
@@ -78,7 +88,6 @@ void run_global_configuration_test(void) {
       };
       krbn::core_configuration::details::global_configuration global_configuration(json,
                                                                                    krbn::core_configuration::error_handling::loose);
-      expect(global_configuration.get_check_for_updates_on_startup() == true);
       expect(global_configuration.get_show_in_menu_bar() == true);
       expect(global_configuration.get_show_profile_name_in_menu_bar() == false);
       expect(global_configuration.get_show_additional_menu_items() == false);

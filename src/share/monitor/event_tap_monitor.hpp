@@ -7,6 +7,7 @@
 #include <nod/nod.hpp>
 #include <pqrs/cf/run_loop_thread.hpp>
 #include <pqrs/dispatcher.hpp>
+#include <pqrs/thread_wait.hpp>
 
 namespace krbn {
 class event_tap_monitor final : pqrs::dispatcher::extra::dispatcher_client {
@@ -22,11 +23,15 @@ public:
   event_tap_monitor(void) : dispatcher_client(),
                             event_tap_(nullptr),
                             run_loop_source_(nullptr) {
-    cf_run_loop_thread_ = std::make_unique<pqrs::cf::run_loop_thread>();
+    cf_run_loop_thread_ = std::make_unique<pqrs::cf::run_loop_thread>(pqrs::cf::run_loop_thread::failure_policy::exit);
   }
 
   ~event_tap_monitor(void) {
-    detach_from_dispatcher([this] {
+    // Cancel dispatcher work first, then serialize cleanup with callbacks on
+    // the event tap's own run loop. The instance stays alive until cleanup ends.
+    detach_from_dispatcher();
+    auto wait = pqrs::make_thread_wait();
+    cf_run_loop_thread_->enqueue(^{
       if (event_tap_) {
         CGEventTapEnable(event_tap_, false);
 
@@ -38,14 +43,19 @@ public:
           run_loop_source_ = nullptr;
         }
 
+        // CoreGraphics retains the port; releasing our reference alone leaves
+        // a stale event tap registered with WindowServer.
+        CFMachPortInvalidate(event_tap_);
         CFRelease(event_tap_);
         event_tap_ = nullptr;
       }
-      logger::get_logger()->info("event_tap_monitor terminated");
+      wait->notify();
     });
+    wait->wait_notice();
 
     cf_run_loop_thread_->terminate();
     cf_run_loop_thread_ = nullptr;
+    logger::get_logger()->info("event_tap_monitor terminated");
   }
 
   void async_start(void) {
@@ -91,6 +101,11 @@ public:
           cf_run_loop_thread_->wake();
 
           logger::get_logger()->info("event_tap_monitor initialized");
+        } else {
+          logger::get_logger()->error("event_tap_monitor failed to create run_loop_source");
+          CFMachPortInvalidate(event_tap_);
+          CFRelease(event_tap_);
+          event_tap_ = nullptr;
         }
       }
     });

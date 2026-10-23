@@ -17,29 +17,20 @@ struct SimpleModificationPickerView: View {
                   action(e.json)
                 },
                 label: {
-                  // We have to use `Image` and `Text` in menu instead of `Label` in order to show image.
-                  if e.label == label {
-                    Image(systemName: "circle.circle.fill")
-                  } else {
-                    Image(systemName: "circle")
-                  }
-
-                  Text(e.label)
+                  Text(verbatim: selectionLabel(e.label, selected: e.label == label))
                 })
             }
           }
         } label: {
-          // We have to use `Image` and `Text` in menu instead of `Label` in order to show image.
-          if category.include(label: label) {
-            Image(systemName: "circle.circle.fill")
-          } else {
-            Image(systemName: "circle")
-          }
-
-          Text(category.name)
+          Text(verbatim: selectionLabel(category.name, selected: category.include(label: label)))
         }
       }
     }
     .frame(maxWidth: .infinity, alignment: .leading)
+  }
+
+  // macOS 27 can omit menu images; keep selection markers in the text.
+  private func selectionLabel(_ label: String, selected: Bool) -> String {
+    (selected ? "◉ " : "○ ") + label
   }
 }

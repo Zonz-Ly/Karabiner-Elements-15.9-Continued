@@ -82,7 +82,7 @@ extension LibKrbn {
         isPointingDevice: isPointingDevice,
         isGamePad: isGamePad,
         isConsumer: isConsumer,
-        isVirtualDevice: isVirtualDevice,
+        isVirtualDevice: isVirtualDevice
       )
     }
 

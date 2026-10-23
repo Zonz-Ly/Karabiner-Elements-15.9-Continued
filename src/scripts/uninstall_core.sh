@@ -3,6 +3,13 @@
 PATH=/bin:/sbin:/usr/bin:/usr/sbin
 export PATH
 
+# Clean up the LaunchDaemon used by local ad-hoc builds.
+local_core_plist='/Library/LaunchDaemons/org.pqrs.service.daemon.Karabiner-Core-Service.plist'
+if [ -f "$local_core_plist" ]; then
+    launchctl bootout system "$local_core_plist" 2>/dev/null || true
+    rm -f "$local_core_plist"
+fi
+
 #
 # Unload files which are installed in previous versions
 #

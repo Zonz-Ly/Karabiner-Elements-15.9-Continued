@@ -176,19 +176,6 @@ public:
     });
   }
 
-  void async_check_for_updates_on_startup(void) const {
-    enqueue_to_dispatcher([this] {
-      nlohmann::json json{
-          {"operation_type", operation_type::check_for_updates_on_startup},
-          {"shared_secret", shared_secret_},
-      };
-
-      if (client_) {
-        client_->async_send(nlohmann::json::to_msgpack(json));
-      }
-    });
-  }
-
   void async_register_menu_agent(void) const {
     enqueue_to_dispatcher([this] {
       nlohmann::json json{

@@ -27,7 +27,7 @@ extension LibKrbn {
 
     public static func == (
       lhs: FrontmostApplicationHistoryEntry,
-      rhs: FrontmostApplicationHistoryEntry,
+      rhs: FrontmostApplicationHistoryEntry
     ) -> Bool {
       lhs.id == rhs.id
     }

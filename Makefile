@@ -4,12 +4,26 @@ all:
 	@echo "Read a document at the following URL to build a distributable package."
 	@echo "https://github.com/pqrs-org/Karabiner-Elements/#how-to-build"
 
-package: clean
+package: check-build-environment
+	$(MAKE) clean
 	./make-package.sh
 	$(MAKE) clean-launch-services-database
 
-build:
+build: check-build-environment
 	$(MAKE) -C src
+
+.PHONY: check-build-environment check-compiler-environment build-clt package-clt
+build-clt:
+	/usr/bin/python3 scripts/build_with_clt.py $(CLT_BUILD_ARGS)
+
+package-clt:
+	/usr/bin/python3 scripts/build_with_clt.py --package --dmg $(CLT_BUILD_ARGS)
+
+check-build-environment:
+	/usr/bin/python3 scripts/check_build_environment.py
+
+check-compiler-environment:
+	/usr/bin/python3 scripts/check_build_environment.py --compiler-only
 
 clean:
 	$(MAKE) -C src clean
