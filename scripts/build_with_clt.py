@@ -270,8 +270,10 @@ extension Bundle {
         rel = Path('Applications') if name in ('Karabiner-Elements', 'Karabiner-EventViewer') else SUPPORT
         source = self.args.resource_root / rel / (name + '.app')
         source_info = plistlib.loads((source / 'Contents/Info.plist').read_bytes())
-        if source_info.get('CFBundleShortVersionString') != '15.9.0':
-            raise RuntimeError(f'{source} is not version 15.9.0')
+        source_version = source_info.get('CFBundleShortVersionString')
+        if source_version != '15.9.0' and not (
+                source_version == self.version and source_info.get('KELocalBuild')):
+            raise RuntimeError(f'{source} is neither 15.9.0 nor this version of the local fork')
         dest = self.stage / rel / (name + '.app')
         contents = dest / 'Contents'
         if dest.exists():

@@ -26,3 +26,11 @@
 
 外層安裝包未作 Developer ID 簽名或公證，DriverKit 原版簽名保留。
 最終整包未自動安裝；目前系統仍保留已通過實測的核心。安裝後可能需重新允許 Input Monitoring／背景服務。
+
+
+## EventViewer 側邊欄同步（2026-10-24）
+
+將已用於 Settings 的 AppKit 側邊欄容器移至 `src/apps/share/swift/Views/NativeSidebarSplitView.swift`，
+Settings 與 EventViewer 共用；EventViewer 保留原清單外觀和列間距，加入完整高度的背景處理，
+並移除舊 NavigationSplitView 的左側 2 pt 留白補丁。版本維持 15.9.1。
+本次依使用者要求只重新編譯與封裝，未執行自動或代理操作的介面測試。使用者於 2026-10-24 回報實測完全正常，據此同步 GitHub 並替換同版本 Release。

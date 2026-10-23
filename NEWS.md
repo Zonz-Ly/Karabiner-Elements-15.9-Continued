@@ -9,7 +9,7 @@
     - Emit lock-screen Escape on physical release to prevent a late key-up from waking the display, including long holds.
 - ⚡️ Improvements
     - Use bundled fork icons and remove the runtime icon picker.
-    - Use AppKit sidebar collapse/expand behavior and a tracking toolbar separator, preserving the sidebar appearance and removing the leading white inset.
+    - Use shared AppKit sidebar collapse/expand behavior and a tracking toolbar separator in Settings and EventViewer, preserving their sidebar appearances and removing the leading white inset.
     - Support local CLT builds and package-owned Core Service launchd registration for ad-hoc packages.
 - 💥 Changes
     - Removed the upstream updater, startup update checks, and manual update controls.

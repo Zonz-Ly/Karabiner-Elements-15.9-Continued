@@ -37,13 +37,12 @@ struct ContentMainView: View {
   @State private var selection: SidebarItem = .main
 
   var body: some View {
-    NavigationSplitView(
+    NativeSidebarSplitView(
       sidebar: {
         List(SidebarItem.allCases, selection: $selection) { item in
           Label(item.title, systemImage: item.systemImage)
             .padding(.vertical, 8)
         }
-        .navigationSplitViewColumnWidth(250)
         .listStyle(.sidebar)
       },
       detail: {
@@ -63,6 +62,7 @@ struct ContentMainView: View {
         }
       }
     )
+    .ignoresSafeArea(.container, edges: .top)
     .frame(
       minWidth: 1100,
       maxWidth: .infinity,
