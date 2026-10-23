@@ -7,7 +7,7 @@ Karabiner-Elements is a powerful key remapper for macOS.
 
 This fork is based on v15.9.0, and retains the original IOHID keyboard capture implementation.
 It includes compatible bug backports, release-triggered Escape on the lock screen,
-icons from @Zabriskije, and an AppKit sidebar with the existing appearance.
+icons from @Zabriskije, and AppKit sidebars in Settings and EventViewer with their existing appearances.
 The upstream updater and its menu/settings entries have been removed.
 See [backports and behavior](BACKPORTS.zh-TW.md), [CLT builds](BUILDING-CLT.zh-TW.md),
 [Sonoma/Xcode builds](BUILDING-SONOMA.zh-TW.md), and [verification](VERIFICATION.zh-TW.md).

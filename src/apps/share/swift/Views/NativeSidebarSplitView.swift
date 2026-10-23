@@ -36,7 +36,7 @@ private final class NativeSidebarController: NSSplitViewController, NSToolbarDel
   override func viewDidAppear() {
     super.viewDidAppear()
     guard let window = view.window else { return }
-    let toolbar = NSToolbar(identifier: "KarabinerSettingsToolbar")
+    let toolbar = NSToolbar(identifier: "KarabinerSidebarToolbar")
     toolbar.delegate = self
     toolbar.displayMode = .iconOnly
     window.styleMask.insert(.fullSizeContentView)

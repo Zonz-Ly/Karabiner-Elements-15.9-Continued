@@ -12,6 +12,7 @@ Karabiner-DriverKit-VirtualHIDDevice 6.8.0 安裝包。
 - 此倉庫的 15.9.0 修復分支及原有 submodules。
 - 本機完整安裝的官方 Karabiner-Elements 15.9.0（含輔助 App）。
   建置會逐一檢查 `CFBundleShortVersionString`，並記錄複製資源的 SHA-256。
+  也接受已安裝、版本與本次建置相同且帶有 `KELocalBuild` 標記的本 fork 資源。
   `--resource-root` 也可以指定另一個包含 `Applications` 與 `Library` 的目錄。
 
 程式只複製各 App 的 `Contents/Resources`，不使用原版執行檔。
